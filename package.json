@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "main": "app.js",
   "scripts": {
-    "dev": "node --watch src/app.js"
+    "dev": "node --watch src/main.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "author": "Edis",
   "description": "",
@@ -12,5 +13,9 @@
     "express": "^4.19.2",
     "winston": "^3.14.1",
     "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }

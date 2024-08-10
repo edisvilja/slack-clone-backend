@@ -1,7 +1,7 @@
-export const helloRoute = (app, logger) => app.get('/', (req, res) => {
+export const helloRoute = (expressApp, logger) => expressApp.get('/', (req, res) => {
   res.send('Hello from Express!');
 });
 
-export const errorRoute = (app, logger) => app.get('/error', (req, res) => {
+export const errorRoute = (expressApp, logger) => expressApp.get('/error', (req, res) => {
   throw new Error('Something went wrong!');
 })

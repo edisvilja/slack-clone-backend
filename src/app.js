@@ -1,25 +1,34 @@
 import express from 'express'
-import logger from './logger.js'
+
 import { helloRoute, errorRoute } from './routes.js'
 import { logErrors } from './middleware.js'
+
+import createLogger from './logger.js'
 import createWebsocketServer from './websocketServer.js'
 
-const app = express()
-const port = process.env.PORT || 3000
+// TODO: maybe add config (port, server/websocketServer disable)
 
-// Routes
-helloRoute(app, logger)
-errorRoute(app, logger)
+export default function createApp(otherPort) {
+  const logger = createLogger()
+  const expressApp = express()
+  const port = otherPort || process.env.PORT || 3000
+
+  // Routes
+  helloRoute(expressApp, logger)
+  errorRoute(expressApp, logger)
 
 
-// Middleware
-logErrors(app, logger)
+  // Middleware
+  logErrors(expressApp, logger)
 
 
-// Expose http server
-const server = app.listen(port, () => {
-  logger.info(`Server is running on http://localhost:${port}`)
-})
+  // Expose http server
+  const server = expressApp.listen(port, () => {
+    logger.info(`Server is running on http://localhost:${port}`)
+  })
 
-// Create websocket server
-const websocketServer = createWebsocketServer(server, logger)
+  // Create websocket server using existing http server
+  const websocketServer = createWebsocketServer(server, logger)
+
+  return { expressApp, logger, server, websocketServer }
+}
