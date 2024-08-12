@@ -2,7 +2,7 @@ import winston from 'winston'
 
 export default function createLogger() {
   return winston.createLogger({
-    level: 'info',
+    level: 'debug',
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
@@ -11,7 +11,7 @@ export default function createLogger() {
     ),
     transports: [
       new winston.transports.Console(), // Loggt auf die Konsole
-      new winston.transports.File({ filename: 'combined.log' }) // Loggt in eine Datei
+      new winston.transports.File({ filename: 'combined.log', level: 'info' }) // Loggt in eine Datei
     ],
   })
 }
