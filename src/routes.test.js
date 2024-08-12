@@ -1,13 +1,13 @@
 import { expect, test, describe, beforeEach, afterEach, jest } from "bun:test";
 
 import request from 'supertest'
-import createApp from './app.js'
+import bootstrapApp from './bootstrap'
 
 describe('Routes', () => {
   let app
 
   beforeEach(() => {
-    app = createApp(3030)
+    app = bootstrapApp(3030)
   });
 
   afterEach(() => {

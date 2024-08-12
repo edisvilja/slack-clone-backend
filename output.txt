@@ -1,0 +1,213 @@
+./src/middleware/post-routes.js
+export const logErrors = (expressApp) => expressApp.use((err, req, res, next) => {
+  logger.error(err)
+  res.status(500).send('Something broke!')
+})
+./src/websocket/handlers.js
+// expects json middleware
+
+export const pingPong = async ({object, client, websocketServer}) => {
+  if(object.type == "ping") {
+    client.sendJSON({type: "pong", reply_to: object.id || null })
+  }
+}./src/websocket/errors.js
+./src/websocket/middleware.js
+export function jsonMiddleware({ message, client, websocketServer }, next) {
+  try {
+    const parsedMessage = JSON.parse(message)
+
+    // Attach the parsed message to the `message` property for further handling
+    const enhancedContext = { object: parsedMessage, client, websocketServer }
+
+    client.sendJSON = (object) => client.send(JSON.stringify(object))
+    
+    // Call the next handler with the enhanced context
+    next(enhancedContext);
+  } catch (error) {
+    client.send(JSON.stringify({ error: 'Invalid JSON' }))
+    client.close() // Optionally close the connection if JSON is invalid
+  }
+}./src/bootstrap.js
+import express from 'express'
+
+import { helloRoute, errorRoute } from './routes'
+import { logErrors } from './middleware/post-routes'
+
+import setupLogger from './setup/logger'
+import setupWebsocketServer from './setup/websocketServer'
+import { connectToMongoDb } from './setup/mongoDb'
+import exposeHttpServer from './setup/exposeHttp'
+
+// TODO: maybe add config (port, server/websocketServer disable)
+
+export default async function bootstrapApp(otherPort) {
+  const logger = setupLogger()
+  const expressApp = express()
+  const mongClient = await connectToMongoDb()
+
+  // Pre-routes middleware
+  expressApp.use(express.json())
+
+  // Routes
+  helloRoute(expressApp)
+  errorRoute(expressApp)
+
+
+  // Post-routes middleware
+  logErrors(expressApp)
+
+  // Expose http server
+  process.env.PORT = otherPort || process.env.PORT || 3000
+  const server = exposeHttpServer(expressApp)
+
+  // Create websocket server using existing http server
+  const websocketServer = setupWebsocketServer(server)
+
+  return { expressApp, logger, server, websocketServer }
+}./src/setup/mongoDb.js
+import mongoose from 'mongoose'
+
+export async function connectToMongoDb() {
+  try {
+    const mongClient = await mongoose.connect(process.env.MONGO_URI)
+    logger.info("Connected to mongodb")
+    return mongClient
+  } catch (error) {
+    logger.error('Could not connect to MongoDB', error)
+    process.exit(1)
+  }
+}
+./src/setup/logger.js
+import winston from 'winston'
+
+export default function setupLogger() {
+  // Retrieve environment variables or set default values
+  const defaultLogLevel = process.env.LOG_LEVEL || 'debug'
+  const consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || defaultLogLevel
+  const fileLogLevel = process.env.FILE_LOG_LEVEL || 'info'
+  const logToConsole = process.env.LOG_TO_CONSOLE !== 'false' // Default to true if not explicitly set to 'false'
+  const logToFile = process.env.LOG_TO_FILE !== 'false'
+  const logFilePath = process.env.LOG_FILE_PATH || 'app.log'
+
+  // Create a list of transports based on environment variables
+  const transports = []
+
+  if (logToConsole) {
+    transports.push(new winston.transports.Console({
+      level: consoleLogLevel
+    }))
+  }
+
+  if (logToFile) {
+    transports.push(new winston.transports.File({
+      filename: logFilePath,
+      level: fileLogLevel
+    }))
+  }
+
+  // Create the logger with the configured transports
+  const logger = winston.createLogger({
+    level: defaultLogLevel,
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
+        return `${timestamp} [${level}]: ${message}${stack ? `\nStack: ${stack}` : ''} ${Object.keys(meta).length ? `\nMeta: ${JSON.stringify(meta)}` : ''}`;
+      })
+    ),
+    transports
+  })
+
+  global.logger = logger
+  return logger
+}./src/setup/websocketServer.js
+import { WebSocketServer } from 'ws'
+import * as websocketHandlers from '../websocket/handlers'
+import { jsonMiddleware } from '../websocket/middleware'
+
+export default function setupWebsocketServer(server) {
+  const websocketServer = createWebsocketServer(server)
+  initializeWebsocketServer(websocketServer)
+  logger.info("Initialized Websocket Server")
+  return websocketServer
+}
+
+function createWebsocketServer (server) {
+  // Create websocket server without own http server
+  const websocketServer = new WebSocketServer({ noServer: true })
+
+  // Integrate WebSocket server with existing HTTP server
+  server.on('upgrade', (request, socket, head) => {
+    websocketServer.handleUpgrade(request, socket, head, (ws) => {
+      websocketServer.emit('connection', ws, request)
+    })
+  })
+
+  return websocketServer
+}
+
+function initializeWebsocketServer(websocketServer) {
+  // Handle WebSocket connections
+  websocketServer.on('connection', (client) => {
+    logger.info('New WebSocket connection')
+
+    client.on('message', (message) => {
+      // Middleware pattern
+      jsonMiddleware({ message, client, websocketServer }, (enhancedContext) => {
+        // Handle the message with the provided handlers
+        Object.values(websocketHandlers).forEach(handler => {
+          handler(enhancedContext)
+        })
+      })
+    })
+
+    client.on('close', () => {
+      logger.info('WebSocket connection closed');
+    })
+
+    client.on('error', (error) => {
+      logger.error(`WebSocket error: ${error.message}`)
+    })
+  })
+}./src/setup/exposeHttp.js
+export default function exposeHttpServer(expressApp) {
+  return expressApp.listen(process.env.PORT, () => {
+    logger.info(`Server is running on http://localhost:${process.env.PORT}`)
+  })
+}./src/routes.test.js
+import { expect, test, describe, beforeEach, afterEach, jest } from "bun:test";
+
+import request from 'supertest'
+import bootstrapApp from './bootstrap'
+
+describe('Routes', () => {
+  let app
+
+  beforeEach(() => {
+    app = bootstrapApp(3030)
+  });
+
+  afterEach(() => {
+    app.server.close()
+    app.websocketServer.close()
+    jest.restoreAllMocks()
+  })
+
+  test('should return Hello from Express for /', async () => {
+    const response = await request(app.expressApp).get('/')
+    expect(response.status).toBe(200)
+    expect(response.text).toBe('Hello from Express!')
+  })
+
+  test('should return 500 and error message for /error', async () => {
+    const response = await request(app.expressApp).get('/error')
+    expect(response.status).toBe(500)
+    expect(response.text).toBe('Something broke!')
+  })
+})./src/routes/index.js
+export const helloRoute = (expressApp) => expressApp.get('/', (req, res) => {
+  res.send('Hello from Express!');
+});
+
+export const errorRoute = (expressApp) => expressApp.get('/error', (req, res) => {
+  throw new Error('Something went wrong!');
+})

@@ -1,2 +1,2 @@
-import createApp from './src/app.js'
-createApp()
+import bootstrapApp from './src/bootstrap'
+bootstrapApp()
