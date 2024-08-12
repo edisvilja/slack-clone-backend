@@ -2,9 +2,9 @@
   "type": "module",
   "name": "backend",
   "version": "0.0.1",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "dev": "node --watch src/main.js",
+    "dev": "node --watch index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "author": "Edis",
