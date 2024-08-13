@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String },
   avatarUrl: { type: String },
   createdAt: { type: Date, default: Date.now },
-  // Weitere Felder, z.B. Profile, Rollen, etc.
+  isAway: { type: Boolean, default: false }
 })
 
 export default mongoose.model('User', userSchema)
