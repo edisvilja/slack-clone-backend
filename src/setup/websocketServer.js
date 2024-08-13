@@ -38,7 +38,7 @@ function initializeWebsocketServer(websocketServer) {
     })
 
     client.on('close', () => {
-      logger.info('WebSocket connection closed');
+      logger.info('WebSocket connection closed')
     })
 
     client.on('error', (error) => {

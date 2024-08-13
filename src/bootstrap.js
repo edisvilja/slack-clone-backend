@@ -7,21 +7,24 @@ import setupLogger from './setup/logger'
 import setupWebsocketServer from './setup/websocketServer'
 import { connectToMongoDb } from './setup/mongoDb'
 import exposeHttpServer from './setup/exposeHttp'
-import setupMailer from './setup/mailer'
-
-// TODO: maybe add config (port, server/websocketServer disable)
+import authRoutes from './routes/authRoutes.js'
+import cookieParser from 'cookie-parser'
+import setupMailer from './setup/mailer.js'
+import setupPassport from "./setup/passport"
 
 export default async function bootstrapApp(otherPort) {
   const logger = setupLogger()
-  const expressApp = express()
+  const expressApp = express(); logger.info("Express App booting")
   const mongClient = await connectToMongoDb()
   const mailer = setupMailer()
+  setupPassport()
 
   // Pre-routes middleware
   expressApp.use(express.json())
+  expressApp.use(cookieParser())
 
   // Routes
-  helloRoute(expressApp)
+  expressApp.use('/auth', authRoutes)
   errorRoute(expressApp)
 
 
