@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 
 const membershipSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  workplace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workplace', required: true },
+  workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace', required: true },
   channel: { type: mongoose.Schema.Types.ObjectId, ref: 'Channel' },  // Optional: Referenz auf Channel
   role: { type: String, enum: ['member', 'admin', 'owner', 'primary_owner'], default: 'member' },
   joinedAt: { type: Date, default: Date.now }
@@ -13,9 +13,9 @@ membershipSchema.path('role').validate({
   isAsync: true,
   validator: async function(value) {
     if (value === 'primary_owner') {
-      // Prüfe, ob es bereits einen Primary Owner für den Workplace gibt
+      // Prüfe, ob es bereits einen Primary Owner für den workspace gibt
       const existingPrimaryOwner = await this.constructor.findOne({
-        workplace: this.workplace,
+        workspace: this.workspace,
         role: 'primary_owner',
         _id: { $ne: this._id }  // Ausschließen des aktuellen Dokuments bei Update
       });
@@ -23,7 +23,7 @@ membershipSchema.path('role').validate({
     }
     return true; // Bei anderen Rollen keine zusätzliche Validierung
   },
-  message: 'There can only be one primary owner for a workplace.'
+  message: 'There can only be one primary owner for a workspace.'
 })
 
 export default mongoose.model('Membership', membershipSchema)

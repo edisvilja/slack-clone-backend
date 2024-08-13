@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 import slugify from "slugify"
 
-const workplaceSchema = new mongoose.Schema({
+const workspaceSchema = new mongoose.Schema({
   name: { type: String, required: true },
   imageUrl: { type: String },  // URL zu einem Bild des Arbeitsplatzes
   slug: { type: String, unique: true, required: true },  // URL-freundlicher Name
@@ -10,27 +10,27 @@ const workplaceSchema = new mongoose.Schema({
 });
 
 // Virtuelle Eigenschaft für admins
-workplaceSchema.virtual('admins').get(async function() {
-  const memberships = await Membership.find({ workplace: this._id, role: { $in: ['admin', 'owner', 'primary_owner'] } })
+workspaceSchema.virtual('admins').get(async function() {
+  const memberships = await Membership.find({ workspace: this._id, role: { $in: ['admin', 'owner', 'primary_owner'] } })
     .populate('user');
   
   return memberships.map(membership => membership.user);
 });
 
 // Virtuelle Eigenschaft für owners
-workplaceSchema.virtual('owners').get(async function() {
-  const memberships = await Membership.find({ workplace: this._id, role: { $in: ['owner', 'primary_owner'] } })
+workspaceSchema.virtual('owners').get(async function() {
+  const memberships = await Membership.find({ workspace: this._id, role: { $in: ['owner', 'primary_owner'] } })
     .populate('user');
 
   return memberships.map(membership => membership.user);
 });
 
 // Pre-save Hook zum Erzeugen des Slugs
-workplaceSchema.pre('save', function(next) {
+workspaceSchema.pre('save', function(next) {
   if (this.isModified('name') || this.isNew) {
     this.slug = slugify(this.name, { lower: true, strict: true });
   }
   next();
 });
 
-export default mongoose.model('Workplace', workplaceSchema)
+export default mongoose.model('Workspace', workspaceSchema)

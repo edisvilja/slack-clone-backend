@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 
 const channelSchema = new mongoose.Schema({
   name: { type: String, required: true },  // Name of the channel
-  workplace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workplace', required: true },  // Reference to the Workplace
+  workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace', required: true },  // Reference to the workspace
   createdAt: { type: Date, default: Date.now },  // Creation date
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Membership' }],  // References to Memberships
   topic: { type: String },  // Topic of the channel

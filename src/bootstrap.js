@@ -7,9 +7,10 @@ import setupLogger from './setup/logger'
 import setupWebsocketServer from './setup/websocketServer'
 import { connectToMongoDb } from './setup/mongoDb'
 import exposeHttpServer from './setup/exposeHttp'
-import authRoutes from './routes/authRoutes.js'
+import authRoutes from './routes/authRoutes'
+import userRoutes from './routes/userRoutes'
 import cookieParser from 'cookie-parser'
-import setupMailer from './setup/mailer.js'
+import setupMailer from './setup/mailer'
 import setupPassport from "./setup/passport"
 
 export default async function bootstrapApp(otherPort) {
@@ -25,6 +26,7 @@ export default async function bootstrapApp(otherPort) {
 
   // Routes
   expressApp.use('/auth', authRoutes)
+  expressApp.use('/api/user', userRoutes)
   errorRoute(expressApp)
 
 

@@ -31,7 +31,7 @@ messageSchema.pre('save', async function (next) {
 
     const isMember = await Membership.exists({
       user: this.sender,
-      workplace: channel.workplace,
+      workspace: channel.workspace,
       isActive: true
     }).exec();
 
@@ -47,12 +47,12 @@ messageSchema.pre('save', async function (next) {
 
     const senderMembership = await Membership.findOne({
       user: this.sender,
-      workplace: { $in: receiverUser.workplaces },  // Assuming `workplaces` field in `User` schema
+      workspace: { $in: receiverUser.workspaces },  // Assuming `workspaces` field in `User` schema
       isActive: true
     }).exec();
 
     if (!senderMembership) {
-      return next(new Error('Sender is not a member of the same workplace as the receiver.'));
+      return next(new Error('Sender is not a member of the same workspace as the receiver.'));
     }
   }
 
