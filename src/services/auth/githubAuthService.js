@@ -17,5 +17,5 @@ export const handleGithubCallback = async (accessToken, refreshToken, profile) =
   }
 
   const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '365d' })
-  return { authUser, jwtToken }
+  return { jwtToken }
 }

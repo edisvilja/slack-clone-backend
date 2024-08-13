@@ -14,8 +14,8 @@ export default function setupPassport() {
     callbackURL: `${process.env.BASE_URL}/auth/google/callback`,
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      const { authUser, jwtToken } = await handleGoogleCallback(accessToken, refreshToken, profile)
-      done(null, { authUser, jwtToken })
+      const { jwtToken } = await handleGoogleCallback(accessToken, refreshToken, profile)
+      done(null, { jwtToken })
     } catch (err) {
       done(err)
     }
@@ -27,8 +27,8 @@ export default function setupPassport() {
     callbackURL: `${process.env.BASE_URL}/auth/github/callback`,
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      const { authUser, jwtToken } = await handleGithubCallback(accessToken, refreshToken, profile)
-      done(null, { authUser, jwtToken })
+      const { jwtToken } = await handleGithubCallback(accessToken, refreshToken, profile)
+      done(null, { jwtToken })
     } catch (err) {
       done(err)
     }
@@ -42,23 +42,10 @@ export default function setupPassport() {
     callbackURL: `${process.env.BASE_URL}/auth/apple/callback`,
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      const { authUser, jwtToken } = await handleAppleCallback(accessToken, refreshToken, profile)
-      done(null, { authUser, jwtToken })
+      const { jwtToken } = await handleAppleCallback(accessToken, refreshToken, profile)
+      done(null, { jwtToken })
     } catch (err) {
       done(err)
     }
   }))
-  
-  passport.serializeUser((user, done) => {
-    done(null, user.authUser._id)
-  })
-  
-  passport.deserializeUser(async (id, done) => {
-    try {
-      const authUser = await findOrCreateAuthUser(null, null, null)  // Modify if needed to get the user
-      done(null, authUser)
-    } catch (err) {
-      done(err)
-    }
-  })
 }
