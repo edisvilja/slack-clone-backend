@@ -1,28 +1,17 @@
-import express from "express"
+// routes/protectedRouter.js
+import express from "express";
 import { authenticateJWT } from "../middleware/authenticateJWT";
-import { getCurrentUser, getUserWorkspaces } from '../services/userService';
+import { getCurrentUserController, getUserWorkspacesController } from '../controllers/userController';
 
-const protectedRouter = express.Router()
+const protectedRouter = express.Router();
+
+// Middleware zum Authentifizieren
 protectedRouter.use(authenticateJWT);
 
 // Route zum Abrufen des aktuellen Benutzers
-protectedRouter.get('/', async (req, res) => {
-  try {
-    const user = await getCurrentUser(req);
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-})
+protectedRouter.get('/', getCurrentUserController);
 
 // Route zum Abrufen aller Workspaces des Benutzers
-protectedRouter.get('/workspaces', async (req, res) => {
-  try {
-    const workspaces = await getUserWorkspaces(req);
-    res.json(workspaces);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-})
+protectedRouter.get('/workspaces', getUserWorkspacesController);
 
-export default protectedRouter
+export default protectedRouter;
