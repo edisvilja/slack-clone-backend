@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 
 const membershipSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace', required: true },
+  workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
   channel: { type: mongoose.Schema.Types.ObjectId, ref: 'Channel' },  // Optional: Referenz auf Channel
   role: { type: String, enum: ['member', 'admin', 'owner', 'primary_owner'], default: 'member' },
   joinedAt: { type: Date, default: Date.now }

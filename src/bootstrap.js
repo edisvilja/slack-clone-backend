@@ -9,6 +9,7 @@ import { connectToMongoDb } from './setup/mongoDb'
 import exposeHttpServer from './setup/exposeHttp'
 import authRoutes from './routes/authRoutes'
 import userRoutes from './routes/userRoutes'
+import workspaceRoutes from './routes/workspaceRoutes'
 import cookieParser from 'cookie-parser'
 import setupMailer from './setup/mailer'
 import setupPassport from "./setup/passport"
@@ -27,6 +28,7 @@ export default async function bootstrapApp(otherPort) {
   // Routes
   expressApp.use('/auth', authRoutes)
   expressApp.use('/api/user', userRoutes)
+  expressApp.use('/api/workspace', workspaceRoutes)
   errorRoute(expressApp)
 
 
