@@ -1,3 +1,5 @@
 # backend
 
-npm run dev
+```
+bun --watch index.js
+```
