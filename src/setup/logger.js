@@ -13,16 +13,20 @@ export default function setupLogger() {
   const transports = []
 
   if (logToConsole) {
-    transports.push(new winston.transports.Console({
-      level: consoleLogLevel
-    }))
+    transports.push(
+      new winston.transports.Console({
+        level: consoleLogLevel,
+      })
+    )
   }
 
   if (logToFile) {
-    transports.push(new winston.transports.File({
-      filename: logFilePath,
-      level: fileLogLevel
-    }))
+    transports.push(
+      new winston.transports.File({
+        filename: logFilePath,
+        level: fileLogLevel,
+      })
+    )
   }
 
   // Create the logger with the configured transports
@@ -31,10 +35,10 @@ export default function setupLogger() {
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
-        return `${timestamp} [${level}]: ${message}${stack ? `\nStack: ${stack}` : ''} ${Object.keys(meta).length ? `\nMeta: ${JSON.stringify(meta)}` : ''}`;
+        return `${timestamp} [${level}]: ${message}${stack ? `\nStack: ${stack}` : ''} ${Object.keys(meta).length ? `\nMeta: ${JSON.stringify(meta)}` : ''}`
       })
     ),
-    transports
+    transports,
   })
 
   global.logger = logger

@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer"
+import nodemailer from 'nodemailer'
 
 export async function sendMail(to, subject, text) {
   const mailOptions = {
@@ -10,7 +10,6 @@ export async function sendMail(to, subject, text) {
 
   await mailer.sendMail(mailOptions)
 }
-
 
 /*
     mailer.sendMail({

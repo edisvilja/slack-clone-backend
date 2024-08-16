@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from 'mongoose'
 
 const authUserSchema = new mongoose.Schema({
   email: { type: String, unique: true },

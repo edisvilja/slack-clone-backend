@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer"
+import nodemailer from 'nodemailer'
 
 export default function setupMailer() {
   const mailer = nodemailer.createTransport({
@@ -7,15 +7,15 @@ export default function setupMailer() {
     secure: false, // upgrade later with STARTTLS
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
+      pass: process.env.EMAIL_PASS,
+    },
   })
 
   mailer.verify((error, success) => {
-    if(error) {
+    if (error) {
       logger.error(error)
     } else {
-      logger.info("Mail client connected")
+      logger.info('Mail client connected')
     }
   })
 

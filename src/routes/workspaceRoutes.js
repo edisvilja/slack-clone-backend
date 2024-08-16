@@ -1,6 +1,6 @@
-import express from "express"
-import { authenticateJWT } from "../middleware/authenticateJWT"
-import { createWorkspaceController } from "../controllers/workspaceController"
+import express from 'express'
+import { authenticateJWT } from '../middleware/authenticateJWT'
+import { createWorkspaceController } from '../controllers/workspaceController'
 
 const protectedRouter = express.Router()
 

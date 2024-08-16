@@ -5,7 +5,7 @@ import AuthUser from '../../models/authUserModel'
 import User from '../../models/userModel'
 import { sendMail } from '../../utils/mailer'
 
-export const generateMagicLink = async (email) => {
+export const generateMagicLink = async email => {
   const token = crypto.randomBytes(20).toString('hex')
   const expires = Date.now() + 3600000 // 1 Stunde gültig
 
@@ -25,17 +25,15 @@ export const generateMagicLink = async (email) => {
   return link
 }
 
-export const verifyMagicLink = async (token) => {
+export const verifyMagicLink = async token => {
   const authUser = await AuthUser.findOne({
     magicLinkToken: token,
     magicLinkExpires: { $gt: Date.now() },
   })
 
-
   if (!authUser) {
     throw new Error('Invalid or expired token')
   }
-
 
   // Hier erstellen wir den echten Benutzer
   const avatarUrl = `https://www.repol.copl.ulaval.ca/wp-content/uploads/2019/01/default-user-icon.jpg`

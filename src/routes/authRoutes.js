@@ -10,9 +10,12 @@ router.post('/mail', sendMagicLink)
 router.get('/mail/verify/:token', verifyMagicLinkHandler)
 
 // Google OAuth routes
-router.get('/google', passport.authenticate('google', {
-  scope: ['profile', 'email']
-}))
+router.get(
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+  })
+)
 
 router.get('/google/callback', passport.authenticate('google', { session: false }), passportCallback)
 

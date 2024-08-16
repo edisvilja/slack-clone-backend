@@ -5,7 +5,7 @@ export const handleGithubCallback = async (accessToken, refreshToken, profile) =
   const email = profile.emails ? profile.emails[0].value : null
   const githubId = profile.id
   const avatarUrl = profile.photos[0].value || `https://eu.ui-avatars.com/api/?name={profile.displayName}&size=250`
-  
+
   let user = await User.findOne({ email })
 
   if (!user) {

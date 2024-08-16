@@ -1,4 +1,4 @@
-import { expect, test, describe, beforeEach, afterEach, jest } from "bun:test";
+import { expect, test, describe, beforeEach, afterEach, jest } from 'bun:test'
 
 import request from 'supertest'
 import bootstrapApp from './bootstrap'
@@ -8,7 +8,7 @@ describe('Routes', () => {
 
   beforeEach(() => {
     app = bootstrapApp(3030)
-  });
+  })
 
   afterEach(() => {
     app.server.close()

@@ -12,11 +12,13 @@ import userRoutes from './routes/userRoutes'
 import workspaceRoutes from './routes/workspaceRoutes'
 import cookieParser from 'cookie-parser'
 import setupMailer from './setup/mailer'
-import setupPassport from "./setup/passport"
+import setupPassport from './setup/passport'
 
 export default async function bootstrapApp(otherPort) {
   const logger = setupLogger()
-  const expressApp = express(); logger.info("Express App booting")
+  logger.info('Express App booting')
+
+  const expressApp = express()
   const mongClient = await connectToMongoDb()
   const mailer = setupMailer()
   setupPassport()
@@ -30,7 +32,6 @@ export default async function bootstrapApp(otherPort) {
   expressApp.use('/api/user', userRoutes)
   expressApp.use('/api/workspace', workspaceRoutes)
   errorRoute(expressApp)
-
 
   // Post-routes middleware
   logErrors(expressApp)
